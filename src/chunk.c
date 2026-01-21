@@ -23,9 +23,11 @@ void writeChunk(Chunk *chunk, uint8_t byte, int line) {
     chunk->count++;
 }
 
-void writeConstant(Chunk* chunk, Value value, int line) {
+int writeConstant(Chunk* chunk, Value value, int line) {
     // check if we need to write OP_CONSTANT or OP_CONSTANT_LONG instruction
     int constantIndex = addConstant(chunk, value);
+    if (constantIndex >= 0xFFFFFF) return -1;
+
     bool useOP_CONSTANT_LONG = constantIndex > 255;
 
     if (useOP_CONSTANT_LONG) {
@@ -37,6 +39,7 @@ void writeConstant(Chunk* chunk, Value value, int line) {
         writeChunk(chunk, OP_CONSTANT, line);
         writeChunk(chunk, constantIndex, line);
     }
+    return constantIndex;
 }
 
 void freeChunk(Chunk *chunk) {

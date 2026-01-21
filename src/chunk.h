@@ -25,7 +25,7 @@ typedef struct {
 
 void initChunk(Chunk *chunk);
 void writeChunk(Chunk *chunk, uint8_t byte, int line);  // append byte to chunk  
-void writeConstant(Chunk* chunk, Value value, int line);// append Constant Instruction for given constant value
+int writeConstant(Chunk* chunk, Value value, int line);// append Constant Instruction for given constant value
 void freeChunk(Chunk *chunk);
 
 int addConstant(Chunk *chunk, Value value);
