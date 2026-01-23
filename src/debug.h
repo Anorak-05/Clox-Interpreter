@@ -6,4 +6,6 @@
 void dissassembleChunk(Chunk *chunk, const char *name);
 int dissassembleInstruction(Chunk *chunk, int offset);
 
+void prettyPrintValue(Value value);
+
 #endif
