@@ -1,10 +1,13 @@
 #include <stdio.h>  // for printf
 #include <stdlib.h> // for exit
 #include <stdarg.h> // for va_list (variadic functions)
+#include <string.h> // for memcpy
 
 #include "vm.h"
 #include "debug.h"    // for dissassembleInstruction
 #include "compiler.h" // for compile
+#include "object.h"
+#include "memory.h"
 
 VM vm; // bad, just done for simplicity's sake
 
@@ -39,23 +42,18 @@ static bool isFalsey(Value value)
     return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
 }
 
-static bool valuesEqual(Value a, Value b)
-{
-    if (a.type != b.type)
-        return false;
+static void concatenate() {
+    ObjString* b = AS_STRING(pop());
+    ObjString* a = AS_STRING(pop());
 
-    switch (a.type)
-    {
-    case VAL_BOOL:
-        return AS_BOOL(a) == AS_BOOL(b);
-    case VAL_NIL:
-        return true;
-    case VAL_NUMBER:
-        return AS_NUMBER(a) == AS_NUMBER(b);
-    default:
-        return false;
-        break;
-    }
+    int length = a->length + b->length;
+    char* chars = ALLOCATE(char, length + 1);
+    memcpy(chars, a->chars, a->length);
+    memcpy(chars + a->length, b->chars, b->length);
+    chars[length] = '\0';
+
+    ObjString* result = takeString(chars, length);
+    push(OBJ_VAL(result));
 }
 
 static InterpretResult run(void)
@@ -96,8 +94,18 @@ static InterpretResult run(void)
         switch (instruction = READ_BYTE())
         {
         case OP_ADD:
-            BINARY_OP(NUMBER_VAL, +);
+        {
+            if (IS_STRING(peek(0)) && IS_STRING(peek(1))) {
+                concatenate();
+            } else if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) {
+                double b = AS_NUMBER(pop());
+                double a = AS_NUMBER(pop());
+                push(NUMBER_VAL(a + b));
+            } else {
+                runtimeError("Operands must be either two numbers or two strings.");
+            }
             break;
+        }
         case OP_SUBTRACT:
             BINARY_OP(NUMBER_VAL, -);
             break;
@@ -175,10 +183,12 @@ static InterpretResult run(void)
 void initVM(void)
 {
     resetStack();
+    vm.objects = NULL;
 }
 
 void freeVM(void)
 {
+    freeObjects();
 }
 
 void push(Value value)

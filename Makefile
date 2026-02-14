@@ -1,5 +1,5 @@
-clox.exe: compiled/chunk.o compiled/compiler.o compiled/debug.o compiled/main.o compiled/memory.o compiled/scanner.o compiled/value.o compiled/vm.o compiled
-	gcc compiled/chunk.o compiled/compiler.o compiled/debug.o compiled/main.o compiled/memory.o compiled/scanner.o compiled/value.o compiled/vm.o -o clox.exe -fsanitize=address -Wall
+clox.exe: compiled/chunk.o compiled/compiler.o compiled/debug.o compiled/main.o compiled/memory.o compiled/scanner.o compiled/value.o compiled/vm.o compiled/object.o compiled
+	gcc compiled/chunk.o compiled/compiler.o compiled/debug.o compiled/main.o compiled/memory.o compiled/scanner.o compiled/value.o compiled/vm.o compiled/object.o -o clox.exe -fsanitize=address -Wall
 
 compiled/chunk.o: src/chunk.c compiled 
 	gcc -c src/chunk.c -o compiled/chunk.o -fsanitize=address -Wall
@@ -17,6 +17,8 @@ compiled/value.o: src/value.c compiled
 	gcc -c src/value.c -o compiled/value.o -fsanitize=address -Wall
 compiled/vm.o: src/vm.c compiled
 	gcc -c src/vm.c -o compiled/vm.o -fsanitize=address -Wall
+compiled/object.o: src/object.c compiled
+	gcc -c src/object.c -o compiled/object.o -fsanitize=address -Wall
 
 compiled:
 	mkdir compiled
