@@ -4,6 +4,7 @@
 #include "common.h"
 #include "chunk.h"
 #include "value.h"
+#include "table.h"
 
 #define STACK_MAX 256
 
@@ -13,6 +14,7 @@ typedef struct vm
     uint8_t *ip;    // instruction pointer
     Value stack[STACK_MAX];
     Value *stackTop;
+    Table strings;
     Obj* objects;
 } VM;
 
